@@ -63,7 +63,7 @@
         .replace(/&/g, "&amp;")
         .replace(/</g, "&lt;")
         .replace(/>/g, "&gt;")
-        .replace(/\\"/g, "&quot;")
+        .replace(/"/g, "&quot;")
         .replace(/'/g, "&#39;");
 
     const highlightSQL = (sql) => {
@@ -79,7 +79,7 @@
       { username: "bob", password: "winter2024" },
     ];
 
-    const looksLikeTautology = (u, p) => /'\\s*OR\\s*'1'='1/i.test(u) || /'\\s*OR\\s*'1'='1/i.test(p);
+    const looksLikeTautology = (u, p) => /'\s*OR\s*'1'='1/i.test(u) || /'\s*OR\s*'1'='1/i.test(p);
     const hasUnbalancedQuote = (s) => (String(s).match(/'/g) || []).length % 2 === 1;
 
     function SQLiDemo() {
@@ -365,7 +365,7 @@
             </main>
 
             <footer className="text-xs text-gray-500 mt-8">
-              © <script>document.write(new Date().getFullYear())</script> Classroom demo. Purpose: education & awareness.
+              © {new Date().getFullYear()} Classroom demo. Purpose: education & awareness.
             </footer>
           </div>
         </div>
