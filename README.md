@@ -62,9 +62,12 @@ The repo serves as-is; the included `.nojekyll` keeps the `vendor/` folder intac
 - [Preact](https://preactjs.com/) + [htm](https://github.com/developit/htm) for
   components with no JSX build step, loaded as ES modules via an import map.
 - [sql.js](https://sql.js.org/) (SQLite/WASM) for the injection demo.
-- Plain CSS, light/dark aware. No Tailwind or Babel at runtime.
-- **All dependencies are vendored** under [`/vendor`](./vendor) — nothing loads
-  from a CDN when the page runs.
+- Plain CSS with a light **field-guide** / dark **console** theme, sharing the
+  visual language (Newsreader + IBM Plex, warm-paper/teal palette) of the
+  companion [SOC Triage Trees](https://github.com/oluwatosinogunjimi/soc-triage-trees) project.
+- **All application code and libraries are vendored** under [`/vendor`](./vendor) —
+  no Tailwind or Babel at runtime. The only runtime network request is the web
+  fonts from Google Fonts, which degrade gracefully to system serif/sans/mono.
 
 ```
 index.html              import map + app entry
