@@ -13,15 +13,47 @@ import a10 from "./modules/a10-exceptional.js";
 
 const MODULES = [a01, a02, a03, a04, a05, a06, a07, a08, a09, a10];
 const byId = Object.fromEntries(MODULES.map((m) => [m.id, m]));
+const REPO = "https://github.com/oluwatosinogunjimi/Cybersecurity-Attacks-Demo";
+
+/* ---------------- theme ---------------- */
+const THEME_KEY = "owasp-demo-theme";
+function applyTheme(t) {
+  if (t === "light" || t === "dark") document.documentElement.setAttribute("data-theme", t);
+  else document.documentElement.removeAttribute("data-theme");
+}
+function isDark() {
+  const a = document.documentElement.getAttribute("data-theme");
+  if (a) return a === "dark";
+  return !!(window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches);
+}
+
+function TopBar({ go, onToggleTheme, dark }) {
+  return html`
+    <header class="appbar">
+      <button class="brand" onClick=${() => go("home")} title="Home">
+        <${Icon} name="shield" cls="brand-mark"/> Web Security Walkthroughs
+      </button>
+      <span class="spacer"></span>
+      <a class="bar-link" href=${REPO} target="_blank" rel="noopener">
+        <${Icon} name="github"/><span class="lbl">GitHub</span>
+      </a>
+      <button class="theme-btn" onClick=${onToggleTheme}
+        aria-label=${dark ? "Switch to light mode" : "Switch to dark mode"}
+        title=${dark ? "Light mode" : "Dark mode"}>
+        <${Icon} name=${dark ? "sun" : "moon"}/>
+      </button>
+    </header>`;
+}
 
 function Home({ go }) {
   return html`
-    <div class="stack">
+    <div class="wrap stack">
       <div class="catgrid">
         ${MODULES.map((m) => html`
           <button class="catcard" onClick=${() => go(m.id)}>
             <span class="badge">${m.code.replace(":2025", "")}</span>
-            <span><h3>${m.title}</h3><p>${m.blurb}</p></span>
+            <h3>${m.title}</h3>
+            <p>${m.blurb}</p>
           </button>`)}
       </div>
       <${Card} title="For instructors — how to run a session" icon="book">
@@ -33,7 +65,7 @@ function Home({ go }) {
           <li>Exit the walkthrough any time to let students drive the controls themselves.</li>
         </ol>
       </${Card}>
-      <${Card} title="Safety &amp; scope" icon="shield">
+      <${Card} title="Safety & scope" icon="shield">
         <ul class="ticks">
           <li>Everything runs locally in your browser. There is no real database, server or network call at runtime.</li>
           <li>The one place untrusted input "executes" (the XSS demo) is confined to a sandboxed iframe, isolated from this page.</li>
@@ -45,37 +77,50 @@ function Home({ go }) {
 
 function App() {
   const [route, setRoute] = useState((location.hash || "").replace("#", "") || "home");
+  const [dark, setDark] = useState(isDark());
   useEffect(() => {
     const onHash = () => setRoute((location.hash || "").replace("#", "") || "home");
     window.addEventListener("hashchange", onHash);
-    return () => window.removeEventListener("hashchange", onHash);
+    const mq = window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)");
+    const onSys = () => { if (!document.documentElement.getAttribute("data-theme")) setDark(isDark()); };
+    if (mq && mq.addEventListener) mq.addEventListener("change", onSys);
+    return () => { window.removeEventListener("hashchange", onHash); if (mq && mq.removeEventListener) mq.removeEventListener("change", onSys); };
   }, []);
   const go = (id) => { location.hash = id; window.scrollTo({ top: 0 }); };
+  const toggleTheme = () => {
+    const next = isDark() ? "light" : "dark";
+    applyTheme(next);
+    try { localStorage.setItem(THEME_KEY, next); } catch (e) {}
+    setDark(next === "dark");
+  };
   const mod = byId[route];
 
   return html`
-    <div class="wrap">
-      <header class="masthead">
-        <div class="eyebrow">OWASP Top 10 · 2025 edition</div>
-        <h1>Web Security Walkthroughs</h1>
-        <p>Ten interactive, safe-by-default demos of the most common web application risks — each with a guided, click-through walkthrough built for the classroom. SQL runs on a real in-browser SQLite engine; signatures and hashes use the real Web Crypto API; untrusted HTML is confined to a sandbox.</p>
-        <div class="row">
-          <${Pill}>Runs entirely in your browser</${Pill}>
-          <${Pill}>No server · no network</${Pill}>
-          <${Pill} variant="info">Guided walkthroughs</${Pill}>
-        </div>
-      </header>
-
-      ${mod
-        ? html`<nav class="crumbs"><a onClick=${() => go("home")}>All categories</a><span>›</span>
+    <${TopBar} go=${go} onToggleTheme=${toggleTheme} dark=${dark}/>
+    ${mod
+      ? html`<div class="wrap">
+          <nav class="crumbs"><a onClick=${() => go("home")}>All categories</a><span>›</span>
             <span>${mod.code} — ${mod.title}</span></nav>
-            <main><${mod.Component}/></main>`
-        : html`<nav class="topnav"></nav><main><${Home} go=${go}/></main>`}
+          <main><${mod.Component}/></main>
+        </div>`
+      : html`<div class="hero-band"><div class="hero">
+          <div class="eyebrow">OWASP Top 10 · 2025 edition · ${MODULES.length} modules</div>
+          <h1>Web Security <em>Walkthroughs</em></h1>
+          <p class="lead">Ten interactive, safe-by-default demos of the most common web application risks — each a guided, click-through walkthrough for the classroom. SQL runs on a real in-browser SQLite engine; signatures and hashes use real Web Crypto; untrusted HTML is confined to a sandbox.</p>
+          <div class="row">
+            <${Pill}>Runs entirely in your browser</${Pill}>
+            <${Pill}>No server · no network</${Pill}>
+            <${Pill} variant="info">Guided walkthroughs</${Pill}>
+          </div>
+        </div></div>
+        <main><${Home} go=${go}/></main>`}
 
-      <footer class="foot">
-        Educational material on the OWASP Top 10 (2025). Built for teaching defenders — use only on systems you are authorized to test.
-      </footer>
-    </div>`;
+    <footer class="foot">
+      <span>OWASP Top 10 (2025) walkthroughs by </span>
+      <a href="https://www.linkedin.com/in/oluwatosin-ogunjimi/" target="_blank" rel="noopener">Oluwatosin Ogunjimi</a>
+      <span> · </span><a href=${REPO} target="_blank" rel="noopener">GitHub</a>
+      <span> · for teaching defenders — use only on systems you are authorized to test · nothing leaves your browser</span>
+    </footer>`;
 }
 
 render(html`<${App}/>`, document.getElementById("root"));

@@ -6,6 +6,14 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="description" content="Ten interactive, safe-by-default classroom demos of the OWASP Top 10 (2025) web application risks, each with a guided walkthrough. Runs entirely in the browser." />
   <link rel="icon" href="data:image/svg+xml,&lt;svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'&gt;&lt;text y='20' font-size='20'&gt;🛡️&lt;/text&gt;&lt;/svg&gt;" />
+  <!-- Apply saved theme before first paint to avoid a flash -->
+  <script>
+    try { var t = localStorage.getItem("owasp-demo-theme");
+      if (t === "light" || t === "dark") document.documentElement.setAttribute("data-theme", t); } catch (e) {}
+  </script>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,400;1,6..72,500&family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;1,400&display=swap" />
   <link rel="stylesheet" href="./assets/styles.css" />
   <!-- All dependencies are vendored under /vendor; nothing loads from a CDN at runtime. -->
   <script type="importmap">
